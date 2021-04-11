@@ -3,6 +3,7 @@ package com.example.doggiealbum;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,7 +31,7 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
     public void onBindViewHolder(@NonNull VH holder, int position) {
         News news = newsList.get(position);
         holder.tv1.setText(news.getTitle());
-        holder.tv2.setText(news.getContent());
+        holder.img1.setImageResource(news.getContent());
     }
 
     @Override
@@ -40,12 +41,12 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
 
     static class VH extends RecyclerView.ViewHolder {
         TextView tv1;
-        TextView tv2;
+        ImageView img1;
 
         public VH(@NonNull View itemView) {
             super(itemView);
             tv1 = itemView.findViewById(R.id.tv1);
-            tv2 = itemView.findViewById(R.id.tv2);
+            img1 = itemView.findViewById(R.id.img1);
         }
     }
 }

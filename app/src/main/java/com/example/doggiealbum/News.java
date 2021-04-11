@@ -2,13 +2,13 @@ package com.example.doggiealbum;
 
 public class News {
     private String title;
-    private String content;
+    private int content;
 
     public void setTitle(String title) {
         this.title = title;
     }
 
-    public void setContent(String content) {
+    public void setContent(int content) {
         this.content = content;
     }
 
@@ -16,11 +16,11 @@ public class News {
         return title;
     }
 
-    public String getContent() {
+    public int getContent() {
         return content;
     }
 
-    public News(String title, String content){
+    public News(String title, int content){
         this.title = title;
         this.content = content;
     }

@@ -3,6 +3,7 @@ package com.example.doggiealbum;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -11,6 +12,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private List<News> newsList = new ArrayList<>();
+    private UrlProcessor urlProcessor = new UrlProcessor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 4);
         recyclerView.setLayoutManager(layoutManager);
 
         initNews();
@@ -28,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void initNews(){
         for(int i = 0; i < 10; i ++){
-            News first = new News("ABC", "abc");
+            News first = new News("ABC", R.drawable.birds);
             newsList.add(first);
         }
     }
