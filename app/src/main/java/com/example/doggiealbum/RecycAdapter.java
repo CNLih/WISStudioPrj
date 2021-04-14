@@ -31,7 +31,7 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
     public void onBindViewHolder(@NonNull VH holder, int position) {
         News news = newsList.get(position);
         holder.tv1.setText(news.getTitle());
-        holder.img1.setImageResource(news.getContent());
+        holder.img1.setImageBitmap(news.getBitmap());
     }
 
     @Override

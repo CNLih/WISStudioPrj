@@ -17,18 +17,15 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.SynchronousQueue;
 
 public class UrlProcessor {
-    private String OriginUrl;
-
-    public UrlProcessor(){
-        OriginUrl = "http://shibe.online/api/shibes";
-        NewsAsynTask newsAsynTask = new NewsAsynTask();
-        newsAsynTask.execute();
-    }
 
     public List<String> getUrls(int n) {
+        String OriginUrl;
+        OriginUrl = "http://shibe.online/api/shibes";
         String jsonUrl = OriginUrl + "?count=" + n;
+
         List<String> lists = new ArrayList<>();
         Log.d("TAG", "getUrls: " + jsonUrl);
         try{
@@ -67,20 +64,20 @@ public class UrlProcessor {
 
         return result;
     }
-
-    //实现网页的异步访问
-    class NewsAsynTask extends AsyncTask<String, Void, List<String>> {
-        @Override
-        protected List<String> doInBackground(String... urls) {
-            return getUrls(5);
-        }
-
-        @Override
-        protected void onPostExecute(List<String> newsBeans) {
-            super.onPostExecute(newsBeans);
-            //构建数据源
-            //NewsAdapter newsAdapter = new NewsAdapter(MainActivity.this, newsBeans);
-            //mListView.setAdapter(newsAdapter);
-        }
-    }
 }
+
+//    //实现网页的异步访问
+//    class NewsAsynTask extends AsyncTask<String, Void, List<String>> {
+//        @Override
+//        protected List<String> doInBackground(String... urls) {
+//            return getUrls(5);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(List<String> newsBeans) {
+//            super.onPostExecute(newsBeans);
+//            //构建数据源
+//            //NewsAdapter newsAdapter = new NewsAdapter(MainActivity.this, newsBeans);
+//            //mListView.setAdapter(newsAdapter);
+//        }
+//    }

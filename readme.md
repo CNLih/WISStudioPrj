@@ -270,3 +270,23 @@ list.forEach(one->{
 });
 ```
 
+
+
+
+
+Glide开源图片加载框架
+
+final修饰变量产生同步问题
+
+```
+final List<String> tmp = null;
+new Thread(new Runnable() {
+    @Override
+    public void run() {
+        tmp = getUrls(n);
+    }
+}).start();
+```
+
+解决办法：利用SynchronousQueue阻塞
+

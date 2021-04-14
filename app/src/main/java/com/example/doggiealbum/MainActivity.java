@@ -12,7 +12,6 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private List<News> newsList = new ArrayList<>();
-    private UrlProcessor urlProcessor = new UrlProcessor();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,18 +19,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
-        GridLayoutManager layoutManager = new GridLayoutManager(this, 4);
+        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         recyclerView.setLayoutManager(layoutManager);
 
-        initNews();
-        RecycAdapter recycAdapter = new RecycAdapter(newsList);
-        recyclerView.setAdapter(recycAdapter);
+        ImageLoader imageLoader = new ImageLoader(newsList, recyclerView);
+        //imageLoader.LoadNImage();
+//        initNews();
+        //RecycAdapter recycAdapter = new RecycAdapter(newsList);
+        //recyclerView.setAdapter(recycAdapter);
     }
 
     private void initNews(){
-        for(int i = 0; i < 10; i ++){
-            News first = new News("ABC", R.drawable.birds);
-            newsList.add(first);
-        }
+//        for(int i = 0; i < 10; i ++){
+//            News first = new News("ABC", );
+//            newsList.add(first);
+//        }
     }
 }
