@@ -360,7 +360,25 @@ public enum SingletonEnum {
 SingletonEnum.INSTANCE.doSomething();
 ```
 
+单例模式创建图片缓冲池，用LruCache设置图片缓冲内存大小即可使用
 
+使用方式`LruCacheImg.INSTANCE.mMemoryCache.get(url)`与`put(url, bitmap)`即可
+
+
+
+#### db使用
+
+获取全局Context（用于工具类的使用）extends一个AppCompatActivity类，让原本的app类都继承这个基本类
+
+
+
+传递适配类型时候信息的时候，不方便给图片放大活动传递适配类型信息
+
+了解到有 序列化Serializable 方式存储”持久化“的信息
+
+##### [序列化学习](https://www.cnblogs.com/huhx/p/serializable.html)
+
+但感觉这里不适用，仅作为了解
 
 
 

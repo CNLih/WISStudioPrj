@@ -2,6 +2,8 @@ package com.example.doggiealbum;
 
 import android.graphics.Bitmap;
 
+import java.io.Serializable;
+
 public class News {
     private String title;
     private Bitmap bitmap;

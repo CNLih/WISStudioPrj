@@ -2,15 +2,20 @@ package com.example.doggiealbum;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-public class ImageShrink extends AppCompatActivity {
+import java.io.FileOutputStream;
+
+public class ImageShrink extends BaseApplication {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +38,17 @@ public class ImageShrink extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 ActivityCompat.finishAfterTransition(ImageShrink.this);
+            }
+        });
+        bigImage.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                //动态获取权限
+                if(ContextCompat.checkSelfPermission(BaseApplication.getmContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+                    ActivityCompat.requestPermissions(ImageShrink.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+                }
+                FileManage.INSTANCE.putNews(imageUrl);
+                return false;
             }
         });
     }
