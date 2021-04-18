@@ -16,8 +16,8 @@ import java.util.List;
 import java.util.concurrent.SynchronousQueue;
 
 public class ImageLoader {
-    List<News> lists;
-    RecyclerView recyclerView;
+    private List<News> lists;
+    private RecyclerView recyclerView;
     public ImageLoader(List<News> lists, RecyclerView recyclerView){
         this.lists = lists;
         this.recyclerView = recyclerView;
@@ -25,41 +25,16 @@ public class ImageLoader {
         new UpdateRecyc().execute();
     }
 
-    public List<News> LoadNImage(){
-        SynchronousQueue<List<String>> queue = new SynchronousQueue<List<String>>();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                UrlProcessor urlProcessor = new UrlProcessor();
-                try {
-                    queue.put(urlProcessor.getUrls(6));
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                List<String> slists = null;
-                try {
-                    slists = queue.take();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                for(int i = 0; i < slists.size(); i ++){
-                    News news = new News("ab", getBitmapByUrl(slists.get(i)));
-                    lists.add(news);
-                }
-            }
-        }).start();
-        return lists;
+    private static Bitmap getBitmap(String url){
+        Bitmap bitmap;
+        if((bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url)) != null){
+            return bitmap;
+        }else{
+            return getBitmapByUrl(url);
+        }
     }
 
-    public static Bitmap getBitmapByUrl(String url){
+    private static Bitmap getBitmapByUrl(String url){
         URL imgUrl = null;
         Bitmap bitmap = null;
         try {
@@ -69,6 +44,7 @@ public class ImageLoader {
             conn.connect();
             InputStream is = conn.getInputStream();
             bitmap = BitmapFactory.decodeStream(is);
+            LruCacheImg.INSTANCE.mMemoryCache.put(url, bitmap);
             is.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -78,11 +54,11 @@ public class ImageLoader {
         return bitmap;
     }
 
-    public class UpdateRecyc extends AsyncTask<String, Void, List<News>>{
+    public class UpdateRecyc extends AsyncTask<String, Void, Void>{
         SynchronousQueue<List<String>> queue = new SynchronousQueue<List<String>>();
 
         @Override
-        protected List<News> doInBackground(String... strings) {
+        protected Void doInBackground(String... strings) {
             UrlProcessor urlProcessor = new UrlProcessor();
             new Thread(new Runnable() {
                 @Override
@@ -103,19 +79,24 @@ public class ImageLoader {
             }
 
             for(int i = 0; i < slists.size(); i ++){
-                News news = new News("ab", getBitmapByUrl(slists.get(i)));
+                News news = new News("ab", getBitmap(slists.get(i)), slists.get(i));
                 lists.add(news);
+                publishProgress();
             }
-
-            return lists;
+            return null;
         }
 
         @Override
-        protected void onPostExecute(List<News> news) {
-            super.onPostExecute(news);
-            Log.d("TAG", "onPostExecute:   executed");
-            RecycAdapter recycAdapter = new RecycAdapter(news);
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+            RecycAdapter recycAdapter = new RecycAdapter(lists);
             recyclerView.setAdapter(recycAdapter);
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.d("TAG", "onPostExecute: finished");
         }
     }
 }

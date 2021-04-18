@@ -1,5 +1,8 @@
 package com.example.doggiealbum;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,11 +10,15 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
 public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
+    public static String EXTRA_IMAGE_TRANSITION_NAME = "extra_transition";
+    public static String EXTRA_IMAGE_URL = "extra_url";
     private List<News> newsList;
 
     public RecycAdapter(List<News> newsList){
@@ -32,6 +39,22 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
         News news = newsList.get(position);
         holder.tv1.setText(news.getTitle());
         holder.img1.setImageBitmap(news.getBitmap());
+        holder.transitionName = "shared" + position;
+        ViewCompat.setTransitionName(holder.img1, "shared" + holder.transitionName);
+        holder.img1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), ImageShrink.class);
+                Log.d("TAG", "onClick: " + holder.transitionName);
+                intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, holder.transitionName);
+                intent.putExtra(EXTRA_IMAGE_URL, news.getUrl());
+                view.getContext().startActivity(
+                        intent,
+                        ActivityOptionsCompat.makeSceneTransitionAnimation(
+                                (Activity) view.getContext(), holder.img1, holder.transitionName
+                        ).toBundle());
+            }
+        });
     }
 
     @Override
@@ -42,6 +65,7 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
     static class VH extends RecyclerView.ViewHolder {
         TextView tv1;
         ImageView img1;
+        String transitionName;
 
         public VH(@NonNull View itemView) {
             super(itemView);

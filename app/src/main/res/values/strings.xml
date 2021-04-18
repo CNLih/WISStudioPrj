@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">doggieAlbum</string>
+    <string name="sharedView">sharedView</string>
 </resources>

@@ -190,7 +190,7 @@ StringBuffer
 
 
 
-**涉及java语法：**
+##### 涉及java语法：
 
 ##### List
 
@@ -272,11 +272,11 @@ list.forEach(one->{
 
 
 
+## Week4
 
+用recyclerview单次加载6张照片
 
-Glide开源图片加载框架
-
-final修饰变量产生同步问题
+final修饰变量产生同步问题（线程问题）
 
 ```
 final List<String> tmp = null;
@@ -289,4 +289,106 @@ new Thread(new Runnable() {
 ```
 
 解决办法：利用SynchronousQueue阻塞
+
+#### 缓冲池：
+
+##### 单例模式 [简书](https://www.jianshu.com/p/dde4f1f1f569)
+
+确保一个类只有一个实例
+
+```java
+//饿汉模式，在类初始化时自行实例化
+public class Singleton {    
+     private static final Singleton single = new Singleton();
+
+     private Singleton() {
+     }
+     //静态工厂方法
+     public static Singleton getInstance() {
+         return single;
+     }
+ }
+//使用
+Singleton.getInstance().xx();
+//问题：多线程并发，多线程同时访问这个类，创建多个实例
+//改进
+public static synchronized Singleton get Instance(){
+    if(single == null){
+        single = new Singleton();
+    }
+    return single;
+}
+//问题：造成同步开销（每次调用instance都调用synchronized锁）
+//双重检查加锁
+public class Singleton {
+    private volatile static Singleton instance = null;
+    private Singleton(){}
+    public static Singleton getInstance(){
+        if(instance == null){   //先检查实例是否存在，如果不存在才进入下面的同步块
+            synchronized (Singleton.class) {    //同步块，线程安全的创建实例 
+                if(instance == null){   //再次检查实例是否存在，如果不存在才真正的创建实例
+                    instance = new Singleton();
+                }
+            }
+        }
+        return instance;
+    }
+}
+//关于volatile（插入许多内存屏障指令来保证处理器不发生乱序执行）  获得锁的线程正在执行构造函数的时候，其他的线程执行到第一次检查if (m_instance == null)的时候，会返回false，因为已经在执行构造函数了，就不是null。因此，会把没有构造完全的对象返回给线程使用，这是不安全的。
+//静态内部类单例模式
+public class Singleton {
+
+    private Singleton(){}
+    //静态的成员式内部类，该内部类的实例与外部类的实例没有绑定关系，而且只有被调用到时才会装载，从而实现了延迟加载
+    private static class SingletonHolder{
+        private static Singleton instance = new Singleton();    //静态初始化器，由JVM来保证线程安全
+    }
+
+    public static Singleton getInstance(){
+        return SingletonHolder.instance;
+    }
+}
+//实现Singleton的最佳方法：单元素的枚举类型
+//不理解，总之“JVM保证这个方法绝对只调用一次”
+public enum SingletonEnum {
+   INSTANCE;
+   public void doSomething() {
+      //doSomething... 
+   }
+}
+//调用
+SingletonEnum.INSTANCE.doSomething();
+```
+
+
+
+
+
+#### 附
+
+Rotrofit是一个 RESTful 的 HTTP 网络请求框架的封装
+
+Glide开源图片加载框架
+
+
+
+##### 涉及java语法：
+
+[synchronized](https://blog.csdn.net/luoweifu/article/details/46613015)
+
+synchronized是Java中的关键字，是一种同步锁。它修饰s的对象有以下几种：
+1. 修饰一个代码块，被修饰的代码块称为同步语句块，其作用的范围是大括号{}括起来的代码，作用的对象是调用这个代码块的对象；`synchronized(this){..}`
+2. 修饰一个方法，被修饰的方法称为同步方法，其作用的范围是整个方法，作用的对象是调用这个方法的对象；
+3. 修改一个静态的方法，其作用的范围是整个静态方法，作用的对象是这个类的所有对象；
+4. 修改一个类，其作用的范围是synchronized后面括号括起来的部分，作用主的对象是这个类的所有对象。
+
+synchronized只锁定对象
+
+```java
+SyncThread syncThread = new SyncThread();
+Thread thread1 = new Thread(syncThread, "SyncThread1");   //Thread.currentThread().getName(); -- SyncThread1
+Thread thread2 = new Thread(syncThread, "SyncThread2");
+thread1.start();
+thread2.start();
+```
 

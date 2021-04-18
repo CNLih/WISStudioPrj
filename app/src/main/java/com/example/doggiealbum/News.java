@@ -5,6 +5,15 @@ import android.graphics.Bitmap;
 public class News {
     private String title;
     private Bitmap bitmap;
+    private String url;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
     public void setTitle(String title) {
         this.title = title;
@@ -22,8 +31,9 @@ public class News {
         return bitmap;
     }
 
-    public News(String title, Bitmap bitmap){
+    public News(String title, Bitmap bitmap, String url){
         this.title = title;
         this.bitmap = bitmap;
+        this.url = url;
     }
 }
