@@ -372,17 +372,13 @@ SingletonEnum.INSTANCE.doSomething();
 
 
 
-传递适配类型时候信息的时候，不方便给图片放大活动传递适配类型信息
-
-了解到有 序列化Serializable 方式存储”持久化“的信息
-
-##### [序列化学习](https://www.cnblogs.com/huhx/p/serializable.html)
-
-但感觉这里不适用，仅作为了解
-
 
 
 #### 附
+
+传递适配类型时候信息的时候，不方便给图片放大活动传递适配类型信息
+了解到有 序列化Serializable 方式存储”持久化“的信息
+[序列化学习](https://www.cnblogs.com/huhx/p/serializable.html)但感觉这里不适用，仅作为了解
 
 Rotrofit是一个 RESTful 的 HTTP 网络请求框架的封装
 

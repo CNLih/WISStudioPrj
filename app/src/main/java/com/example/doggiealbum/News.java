@@ -6,7 +6,6 @@ import java.io.Serializable;
 
 public class News {
     private String title;
-    private Bitmap bitmap;
     private String url;
 
     public String getUrl() {
@@ -21,21 +20,12 @@ public class News {
         this.title = title;
     }
 
-    public void setBitmap(Bitmap bitmap){
-        this.bitmap = bitmap;
-    }
-
     public String getTitle() {
         return title;
     }
 
-    public Bitmap getBitmap(){
-        return bitmap;
-    }
-
-    public News(String title, Bitmap bitmap, String url){
+    public News(String title, String url){
         this.title = title;
-        this.bitmap = bitmap;
         this.url = url;
     }
 }

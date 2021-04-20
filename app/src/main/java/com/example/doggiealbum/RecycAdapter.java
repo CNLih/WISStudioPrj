@@ -30,30 +30,26 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.recyc_item, parent, false);
-        VH vh = new VH(view);
-        return vh;
+        return new VH(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull VH holder, int position) {
         News news = newsList.get(position);
         holder.tv1.setText(news.getTitle());
-        holder.img1.setImageBitmap(news.getBitmap());
+        holder.img1.setImageBitmap(LruCacheImg.INSTANCE.mMemoryCache.get(news.getUrl()));
         holder.transitionName = "shared" + position;
         ViewCompat.setTransitionName(holder.img1, "shared" + holder.transitionName);
-        holder.img1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), ImageShrink.class);
-                Log.d("TAG", "onClick: " + holder.transitionName);
-                intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, holder.transitionName);
-                intent.putExtra(EXTRA_IMAGE_URL, news.getUrl());
-                view.getContext().startActivity(
-                        intent,
-                        ActivityOptionsCompat.makeSceneTransitionAnimation(
-                                (Activity) view.getContext(), holder.img1, holder.transitionName
-                        ).toBundle());
-            }
+        holder.img1.setOnClickListener(view -> {
+            Intent intent = new Intent(view.getContext(), ImageShrink.class);
+            Log.d("TAG", "onClick: " + holder.transitionName);
+            intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, holder.transitionName);
+            intent.putExtra(EXTRA_IMAGE_URL, news.getUrl());
+            view.getContext().startActivity(
+                    intent,
+                    ActivityOptionsCompat.makeSceneTransitionAnimation(
+                            (Activity) view.getContext(), holder.img1, holder.transitionName
+                    ).toBundle());
         });
     }
 

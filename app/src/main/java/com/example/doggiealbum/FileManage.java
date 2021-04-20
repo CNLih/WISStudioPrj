@@ -24,7 +24,10 @@ import androidx.core.content.ContextCompat;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public enum FileManage {
     INSTANCE;
@@ -44,46 +47,83 @@ public enum FileManage {
         }
     };
 
+    public boolean fileIsExists(String strFile)
+    {
+        try {
+            File f=new File(strFile);
+            if(!f.exists()) {
+                return false;
+            }
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
+    //return : String[2], 0 -- url, 1 -- path
+    public ArrayList<String[]> getAllNews(){
+        Cursor cursor = db.query("Album", null, null, null, null, null, null);
+        ArrayList<String[]> rtn = new ArrayList<>();
+        if(cursor.moveToFirst()){
+            do{
+                String url = cursor.getString(cursor.getColumnIndex("url"));
+                String path = cursor.getString(cursor.getColumnIndex("path"));
+                String[] news = new String[2];
+                news[0] = url;
+                news[1] = path;
+                if(fileIsExists(path)){
+                    rtn.add(news);
+                }else{
+                    db.delete("Album", "path = ?", new String[]{path});
+                }
+            }while (cursor.moveToNext());
+        }
+        cursor.close();
+        for(int i = 0; i < rtn.size(); i ++){
+            Log.d("TAG", "getAllNews: " + rtn.get(i)[0] + rtn.get(i)[1]);
+        }
+        return rtn;
+    }
+
     public void putNews(String url) {
         //db存放路径
         ContentValues values = new ContentValues();
         //获取db中的最大id值+1作为新的id
         Cursor cursor = db.rawQuery("select max(id) AS maxId from Album", null);
         final int[] curId = new int[2];
-        curId[0] = 0;
+        //curId[0] = 0;   //by default
         if(cursor !=null && cursor.moveToFirst() && cursor.getCount()>0) {
             curId[0] = cursor.getInt(cursor.getColumnIndex("maxId"));
             Log.d("TAG", "putNews: has" + curId[0]);
         }
+        cursor.close();
         values.put("url", url);
-        values.put("path", DEFAULT_PATH + (curId[0] + 1));
+        values.put("path", DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg");
         db.insert("Album", null, values);
         Log.d("TAG", "putNews: put into db successfully");
         //保存图片到物理位置
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url);
-                File file = new File(DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg");
-                Message message = new Message();
-                try{
-                    FileOutputStream fileOutputStream = new FileOutputStream(file);
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
-                    fileOutputStream.flush();  //关闭写入流
-                    fileOutputStream.close();
-                    message.what = 1;
-                    message.obj = DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg";
-                } catch (FileNotFoundException e) {
-                    e.printStackTrace();
-                    message.what = 2;
-                    message.obj = e.getMessage();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    message.what = 2;
-                    message.obj = e.getMessage();
-                }
-                handler.sendMessage(message);
+        new Thread(() -> {
+            Bitmap bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url);
+            File file = new File(DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg");
+            Message message = new Message();
+            try{
+                FileOutputStream fileOutputStream = new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
+                fileOutputStream.flush();  //关闭写入流
+                fileOutputStream.close();
+                message.what = 1;
+                message.obj = DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg";
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                message.what = 2;
+                message.obj = e.getMessage();
+            } catch (IOException e) {
+                e.printStackTrace();
+                message.what = 2;
+                message.obj = e.getMessage();
             }
+            handler.sendMessage(message);
         }).start();
     }
 
