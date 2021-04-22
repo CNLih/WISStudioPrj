@@ -370,7 +370,33 @@ SingletonEnum.INSTANCE.doSomething();
 
 获取全局Context（用于工具类的使用）extends一个AppCompatActivity类，让原本的app类都继承这个基本类
 
+```
+SQLiteDatabase db = dbHelper.getReadableDatabase();
 
+Cursor cursor = db.query("Album", null, null, null, null, null, null);//全选
+cursor.moveToFirst();        //集合，遍历position的值是-1，所以需要moveToFirst()
+cursor.moveToNest();         //下一组
+cursor.getString(cursor.getColumnIndex("url"));
+db.delete("Album", "path=?", new String[]{path});
+```
+
+
+
+[recycerViewx详讲](https://www.cnblogs.com/dasusu/p/9159904.html)
+
+##### RecycerViewAdapter更新方式改进：
+
+notifyDataSetChanged()
+
+getAdapterPosition():
+
+再adapter中添加：
+
+```
+public void addFootItem(){
+    notifyItemInserted(getItemCount());
+}
+```
 
 
 

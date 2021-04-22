@@ -53,6 +53,10 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
         });
     }
 
+    public void addFootItem(){
+        notifyItemInserted(getItemCount());
+    }
+
     @Override
     public int getItemCount() {
         return newsList.size();

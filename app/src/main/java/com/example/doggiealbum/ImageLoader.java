@@ -23,10 +23,12 @@ public class ImageLoader {
     private RecyclerView recyclerView;
     private final int[] LoadAtOneTime = new int[2];
     private final boolean isLoading = false;
+    private RecycAdapter recycAdapter;
 
-    public ImageLoader(List<News> lists, RecyclerView recyclerView){
+    public ImageLoader(List<News> lists, RecyclerView recyclerView, RecycAdapter recycAdapter){
         this.lists = lists;
         this.recyclerView = recyclerView;
+        this.recycAdapter = recycAdapter;
         LoadAtOneTime[0] = 6;
     }
 
@@ -111,8 +113,8 @@ public class ImageLoader {
         @Override
         protected void onProgressUpdate(Void... values) {
             super.onProgressUpdate(values);
-            RecycAdapter recycAdapter = new RecycAdapter(lists);
-            recyclerView.setAdapter(recycAdapter);
+
+            recycAdapter.addFootItem();
         }
 
         @Override

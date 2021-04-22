@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import java.util.List;
 
 public class MainActivity extends BaseApplication {
     private List<News> newsList = new ArrayList<>();
+    RecycAdapter recycAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,13 +31,18 @@ public class MainActivity extends BaseApplication {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
 //        StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        recyclerView.setLayoutManager(layoutManager);
 
-        ImageLoader imageLoader = new ImageLoader(newsList, recyclerView);
+        //recyclerView.canScrollVertically(-1);
+        recyclerView.setLayoutManager(layoutManager);
+        recycAdapter = new RecycAdapter(newsList);
+        recyclerView.setAdapter(recycAdapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
 
         ArrayList<String[]> list;
         list = FileManage.INSTANCE.getAllNews();
         initAlbum(list, recyclerView);
+
+        ImageLoader imageLoader = new ImageLoader(newsList, recyclerView, recycAdapter);
 
         button.setOnClickListener(view -> imageLoader.LoadNImage(8));
         //imageLoader.LoadNImage();
@@ -54,8 +61,9 @@ public class MainActivity extends BaseApplication {
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
-            RecycAdapter recycAdapter = new RecycAdapter(newsList);
-            recyclerView.setAdapter(recycAdapter);
+//            RecycAdapter recycAdapter = new RecycAdapter(newsList);
+//            recyclerView.setAdapter(recycAdapter);
+            recycAdapter.addFootItem();
         }
     }
 }
