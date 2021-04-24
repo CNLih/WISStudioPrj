@@ -100,7 +100,12 @@ public enum FileManage {
         cursor.close();
         values.put("url", url);
         values.put("path", DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg");
-        db.insert("Album", null, values);
+
+        if(db.insert("Album", null, values) == -1){
+            Log.d("TAG", "putNews: " + "already exit");
+            Toast.makeText(BaseApplication.getmContext(), "图片已经存在于目录中", Toast.LENGTH_SHORT).show();
+            return ;
+        }
         Log.d("TAG", "putNews: put into db successfully");
         //保存图片到物理位置
         new Thread(() -> {
@@ -133,7 +138,7 @@ public enum FileManage {
     public class MyDatabaseHelper extends SQLiteOpenHelper{
         public static final String CREATE_TABLE = "create table Album("
                 + "id integer primary key autoincrement, "
-                + "url text, "
+                + "url text unique, "
                 + "path text)";
         private Context mContext;
 

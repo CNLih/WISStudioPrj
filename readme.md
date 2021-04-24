@@ -400,6 +400,14 @@ public void addFootItem(){
 
 
 
+##### 下拉更新
+
+[简书](https://www.jianshu.com/p/d23b42b6360b)
+
+
+
+
+
 #### 附
 
 传递适配类型时候信息的时候，不方便给图片放大活动传递适配类型信息

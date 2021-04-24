@@ -24,8 +24,14 @@ public class News {
         return title;
     }
 
+
     public News(String title, String url){
         this.title = title;
+        this.url = url;
+    }
+
+    public News(String url){
+        this.title = "";
         this.url = url;
     }
 }
