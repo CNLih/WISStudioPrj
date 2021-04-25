@@ -22,7 +22,7 @@ public class ImageLoader {
     private List<News> lists;
     private RecyclerView recyclerView;
     private final int[] LoadAtOneTime = new int[2];
-    private final boolean isLoading = false;
+    private boolean isLoading = false;
     private RecycAdapter recycAdapter;
 
     public ImageLoader(List<News> lists, RecyclerView recyclerView, RecycAdapter recycAdapter){
@@ -30,6 +30,10 @@ public class ImageLoader {
         this.recyclerView = recyclerView;
         this.recycAdapter = recycAdapter;
         LoadAtOneTime[0] = 6;
+    }
+
+    public boolean getIsLoading(){
+        return isLoading;
     }
 
     public void LoadNImage(int num){
@@ -84,6 +88,12 @@ public class ImageLoader {
         SynchronousQueue<List<String>> queue = new SynchronousQueue<>();
 
         @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            isLoading = true;
+        }
+
+        @Override
         protected Void doInBackground(String... strings) {
             UrlProcessor urlProcessor = new UrlProcessor();
             new Thread(() -> {
@@ -120,6 +130,7 @@ public class ImageLoader {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
+            isLoading = false;
             Log.d("TAG", "onPostExecute: finished");
         }
     }

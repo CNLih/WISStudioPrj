@@ -3,6 +3,7 @@ package com.example.doggiealbum;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -32,28 +33,13 @@ public class MainActivity extends BaseApplication {
 
         Button button = (Button)findViewById(R.id.btn_new_img);
 
-        SwipeRefreshLayout swipeRefreshLayout = (SwipeRefreshLayout)findViewById(R.id.swip_layout);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
+        ReboundScrollView reboundScrollView = findViewById(R.id.scroll_lout);
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         //        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
         //recyclerView.canScrollVertically(-1);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                FileManage.INSTANCE.getAllNews();       //如果文件有删除，则在数据库中删除该项
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        if(swipeRefreshLayout.isRefreshing()){
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                    }
-                }, 1500);
-            }
-        });
 
         ArrayList<String[]> list;
         list = FileManage.INSTANCE.getAllNews();
@@ -61,6 +47,21 @@ public class MainActivity extends BaseApplication {
 
         ImageLoader imageLoader = new ImageLoader(newsList, recyclerView, recycAdapter);
 
+        reboundScrollView.setOnReboundEndListener(new ReboundScrollView.OnReboundEndListener() {
+            @Override
+            public void onReboundTopComplete() {
+
+            }
+
+            @Override
+            public void onReboundBottomComplete() {
+                Log.d("TAG", "onReboundBottomComplete: " + "3232323");
+                button.setVisibility(View.GONE);
+                if(!imageLoader.getIsLoading()){
+                    imageLoader.LoadNImage(8);
+                }
+            }
+        });
         button.setOnClickListener(view -> imageLoader.LoadNImage(8));
         //imageLoader.LoadNImage();
 //        initNews();
