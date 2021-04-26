@@ -40,6 +40,7 @@ public class MainActivity extends BaseApplication {
         //recyclerView.canScrollVertically(-1);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.setNestedScrollingEnabled(false);
 
         ArrayList<String[]> list;
         list = FileManage.INSTANCE.getAllNews();
@@ -70,7 +71,7 @@ public class MainActivity extends BaseApplication {
     }
 
     private void initAlbum(ArrayList<String[]> list, RecyclerView recyclerView){
-        recycAdapter = new RecycAdapter(newsList);
+        recycAdapter = new RecycAdapter(newsList, recyclerView);
         recyclerView.setAdapter(recycAdapter);
         for(int i = 0; i < list.size(); i ++){
             News first = new News("NONE", list.get(i)[0]);

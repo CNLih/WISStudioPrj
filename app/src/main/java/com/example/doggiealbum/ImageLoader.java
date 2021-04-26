@@ -84,13 +84,19 @@ public class ImageLoader {
         return bitmap;
     }
 
-    public class UpdateRecyc extends AsyncTask<String, Void, Void>{
+    public class UpdateRecyc extends AsyncTask<String, Integer, Void>{
         SynchronousQueue<List<String>> queue = new SynchronousQueue<>();
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             isLoading = true;
+
+            for(int i = 0; i < LoadAtOneTime[0]; i ++) {
+                News news = new News();
+                lists.add(news);
+                recycAdapter.addFootItem();
+            }
         }
 
         @Override
@@ -112,19 +118,19 @@ public class ImageLoader {
             }
 
             for(int i = 0; i < Objects.requireNonNull(slists).size(); i ++){
-                News news = new News("ab", slists.get(i));
+                News news = lists.get(i + lists.size() - LoadAtOneTime[0]);
+                news.setUrl(slists.get(i));
                 getBitmap(slists.get(i));
-                lists.add(news);
-                publishProgress();
+                publishProgress(i + lists.size() - LoadAtOneTime[0]);
             }
             return null;
         }
 
         @Override
-        protected void onProgressUpdate(Void... values) {
+        protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
 
-            recycAdapter.addFootItem();
+            recycAdapter.updataItem(values[0]);
         }
 
         @Override

@@ -95,6 +95,7 @@ public class ReboundScrollView extends ScrollView{
                 int offset = (int)(120 * Math.atan(deltaY * 0.02));     //hhh自己想出来的阻尼曲线
                 contentView.layout(rect.left, rect.top + offset, rect.right, rect.bottom);
                 rebound = true;
+                break;
             case MotionEvent.ACTION_UP:
                 if(!rebound)
                     break;
