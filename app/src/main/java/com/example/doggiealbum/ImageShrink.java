@@ -41,12 +41,16 @@ public class ImageShrink extends BaseApplication {
         bigImage = (ImageView)findViewById(R.id.big_img);
         bigImage.setImageBitmap(LruCacheImg.INSTANCE.mMemoryCache.get(imageUrl));
         //不清楚为何transitionname设置了，打开活动也没有画面，所以重新获取bitmap
-//        bigImage.setTransitionName(imageTransitionName);
+        //bigImage.setTransitionName(imageTransitionName);
         ViewCompat.setTransitionName(bigImage, imageTransitionName);
         Log.d("TAG", "onCreate: " + imageTransitionName);
         supportStartPostponedEnterTransition();
 
-        new UpdateImageView().execute(imageUrl);
+        if(ImageLoader.getNetworkState()){
+            new UpdateImageView().execute(imageUrl);
+        }else{
+            Toast.makeText(BaseApplication.getmContext(),"网络不可用",Toast.LENGTH_SHORT).show();
+        }
 
         bigImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -61,9 +65,9 @@ public class ImageShrink extends BaseApplication {
                 if(ContextCompat.checkSelfPermission(BaseApplication.getmContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
                     ActivityCompat.requestPermissions(ImageShrink.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
                 }
-                if(originImg == null){
+                if(originImg == null){          //未加载完成
                     Toast.makeText(BaseApplication.getmContext(), "稍等..加载原图ing", Toast.LENGTH_SHORT).show();
-                    return false;
+                    return true;                //true不会同时触发onClickListener
                 }
                 FileManage.INSTANCE.putNews(imageUrl, originImg);
                 return true;
@@ -72,10 +76,9 @@ public class ImageShrink extends BaseApplication {
     }
 
     private class UpdateImageView extends AsyncTask<String, Void, Void>{
-
         @Override
         protected Void doInBackground(String... strings) {
-            originImg = new ImageLoader().getBitmapByUrl(strings[0], false);
+            originImg = ImageLoader.getBitmapByUrl(strings[0], false);
             return null;
         }
 
@@ -83,7 +86,6 @@ public class ImageShrink extends BaseApplication {
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             Toast.makeText(BaseApplication.getmContext(), "加载原图", Toast.LENGTH_SHORT).show();
-            Log.d("TAG", "onPostExecute: " + "加载原图");
             bigImage.setImageBitmap(originImg);
         }
     }

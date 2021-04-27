@@ -62,7 +62,7 @@ public class ReboundScrollView extends ScrollView{
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
         if(contentView != null){
-            rect.set(contentView.getLeft(), contentView.getTop(), contentView.getRight(), contentView.getBottom());
+            rect.set(contentView.getLeft(), contentView.getTop(), contentView.getRight(), contentView.getBottom() + getViewHeight(button));
         }
     }
 
@@ -79,9 +79,6 @@ public class ReboundScrollView extends ScrollView{
         switch (ev.getAction()){
             case MotionEvent.ACTION_DOWN:
                 lastY = (int) ev.getY();
-                if(isScrollToTop() || isScrollToBottom()){
-                    button.setVisibility(Button.VISIBLE);
-                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if(!isScrollToTop() && !isScrollToBottom()){
@@ -92,21 +89,20 @@ public class ReboundScrollView extends ScrollView{
                 if((!enableTopRebound && deltaY > 0) || (!enableBottomRebound && deltaY > 0)){
                     break;
                 }
-                int offset = (int)(120 * Math.atan(deltaY * 0.02));     //hhh自己想出来的阻尼曲线
+                int offset = (int)(120 * Math.atan(deltaY * 0.02));     //hhh自己想出来的阻尼曲线，拖拉到一定程度停止拖动
                 contentView.layout(rect.left, rect.top + offset, rect.right, rect.bottom);
                 rebound = true;
                 break;
             case MotionEvent.ACTION_UP:
-                if(!rebound)
+                if(!rebound){
                     break;
-
+                }
                 reboundDirection = contentView.getTop() - rect.top;
                 TranslateAnimation animation = new TranslateAnimation(0, 0, contentView.getTop(), rect.top);
                 animation.setDuration(300);
                 animation.setAnimationListener(new Animation.AnimationListener() {
                     @Override
                     public void onAnimationStart(Animation animation) {
-
                     }
 
                     @Override
@@ -143,7 +139,7 @@ public class ReboundScrollView extends ScrollView{
         return contentView.getHeight() <= getHeight() + getScrollY();
     }
 
-    public interface OnReboundEndListener{
+    public interface OnReboundEndListener{     //提供给外部的接口
         void onReboundTopComplete();
         void onReboundBottomComplete();
     }

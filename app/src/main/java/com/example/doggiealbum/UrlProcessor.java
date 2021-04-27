@@ -1,23 +1,15 @@
 package com.example.doggiealbum;
 
-import android.os.AsyncTask;
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONStringer;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.SynchronousQueue;
 
 public class UrlProcessor {
 
@@ -26,14 +18,11 @@ public class UrlProcessor {
         OriginUrl = "http://shibe.online/api/shibes";
         String jsonUrl = OriginUrl + "?count=" + n;
 
-        List<String> lists = new ArrayList<>();
-        Log.d("TAG", "getUrls: " + jsonUrl);
+        List<String> lists = new ArrayList<>();        //将解析好的url加入lists
         try{
             String jsonData = readStream(new URL(jsonUrl).openStream());
-            Log.d("TAG", "getUrls: " + jsonData);
             JSONArray jsonArray = new JSONArray(jsonData);
             for(int i = 0; i < jsonArray.length(); i ++){
-                Log.d("TAG", "getUrls: " + jsonArray.getString(i));
                 lists.add(jsonArray.getString(i));
             }
         } catch (MalformedURLException e) {
@@ -43,7 +32,6 @@ public class UrlProcessor {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        Log.d("TAG", "getUrls: " + lists);
         return lists;
     }
 
@@ -61,23 +49,6 @@ public class UrlProcessor {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return result;
     }
 }
-
-//    //实现网页的异步访问
-//    class NewsAsynTask extends AsyncTask<String, Void, List<String>> {
-//        @Override
-//        protected List<String> doInBackground(String... urls) {
-//            return getUrls(5);
-//        }
-//
-//        @Override
-//        protected void onPostExecute(List<String> newsBeans) {
-//            super.onPostExecute(newsBeans);
-//            //构建数据源
-//            //NewsAdapter newsAdapter = new NewsAdapter(MainActivity.this, newsBeans);
-//            //mListView.setAdapter(newsAdapter);
-//        }
-//    }

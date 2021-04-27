@@ -36,7 +36,7 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
     @Override
     public VH onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyc_item, parent, false);
+                .inflate(R.layout.recyc_item, parent, false);    //加载子项目
         mView=view;
         return new VH(view);
     }
@@ -51,16 +51,16 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
         holder.img1.setImageBitmap(LruCacheImg.INSTANCE.mMemoryCache.get(news.getUrl()));
         holder.transitionName = "shared" + position;
         ViewCompat.setTransitionName(holder.img1, "shared" + holder.transitionName);
-        holder.img1.setOnClickListener(view -> {
+        holder.img1.setOnClickListener(view -> {           //给每个子项目添加监听
             Intent intent = new Intent(view.getContext(), ImageShrink.class);
-            Log.d("TAG", "onClick: " + holder.transitionName);
+//            Log.d("TAG", "onClick: " + holder.transitionName);
             intent.putExtra(EXTRA_IMAGE_TRANSITION_NAME, holder.transitionName);
             intent.putExtra(EXTRA_IMAGE_URL, news.getUrl());
             view.getContext().startActivity(
                     intent,
                     ActivityOptionsCompat.makeSceneTransitionAnimation(
                             (Activity) view.getContext(), holder.img1, holder.transitionName
-                    ).toBundle());
+                    ).toBundle());                          //设置启动活动动画
         });
         setRecyclerViewHeight();
     }
@@ -69,7 +69,7 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
         notifyItemInserted(getItemCount());
     }
 
-    public void updataItem(int pos){
+    public void updateItem(int pos){
         notifyItemChanged(pos);
     }
 
@@ -90,8 +90,9 @@ public class RecycAdapter extends RecyclerView.Adapter<RecycAdapter.VH> {
         }
     }
 
+    //copy
     private void setRecyclerViewHeight(){
-        if(mIsSet||mRecyclerView==null) return;
+        if(mIsSet || mRecyclerView==null) return;
         mIsSet=true;
         //不可以用View.getHeight()方法获取高度，因为这个时候控件高度还没有被度量，要在onCreate执行后才会被度量，因此我们需要直接通过获取属性来获取高度！
         /*注意，所有的getLayoutParams方法，获取的都是它在父view中的属性，所以不难理解这两个强制类型转换*/

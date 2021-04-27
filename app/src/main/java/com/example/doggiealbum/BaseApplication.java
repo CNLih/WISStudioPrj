@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+//用于给工具类提供Context
 public class BaseApplication extends AppCompatActivity {
     private static Context mContext;
 

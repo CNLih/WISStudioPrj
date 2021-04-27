@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import java.io.Serializable;
 
 public class News {
-    private String title;
+    private String title;      //作者名，但获取的网页这个并无这一项，一般为空
     private String url;
 
     public String getUrl() {

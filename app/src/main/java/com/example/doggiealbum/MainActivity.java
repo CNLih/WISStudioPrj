@@ -38,49 +38,44 @@ public class MainActivity extends BaseApplication {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        //View
         Button button = (Button)findViewById(R.id.btn_new_img);
-
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
         ReboundScrollView reboundScrollView = findViewById(R.id.scroll_lout);
+
+        //Manager
         StaggeredGridLayoutManager layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        //        GridLayoutManager layoutManager = new GridLayoutManager(this, 2);
-        //recyclerView.canScrollVertically(-1);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setNestedScrollingEnabled(false);
 
-        //动态获取权限
+        //为FileManage获取权限
         if(ContextCompat.checkSelfPermission(BaseApplication.getmContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
             ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
         }
+        //首先检测本地文件，并进行初始化
         ArrayList<String[]> list;
         list = FileManage.INSTANCE.getAllNews();
         initAlbum(list, recyclerView);
         ImageLoader imageLoader = new ImageLoader(newsList, recyclerView, recycAdapter);
-
-        if(list.size() == 0){
-            imageLoader.LoadNImage(8);
+        if(list.size() < 8){
+            imageLoader.LoadNImage(8 - list.size());
         }
+
         reboundScrollView.setOnReboundEndListener(new ReboundScrollView.OnReboundEndListener() {
             @Override
             public void onReboundTopComplete() {
-
+                FileManage.INSTANCE.getAllNews();   //从db中移除一些本地删除的图片
             }
 
             @Override
             public void onReboundBottomComplete() {
-                Log.d("TAG", "onReboundBottomComplete: " + "3232323");
-                button.setVisibility(View.GONE);
                 if(!imageLoader.getIsLoading()){
                     imageLoader.LoadNImage(8);
                 }
             }
         });
         button.setOnClickListener(view -> imageLoader.LoadNImage(8));
-        //imageLoader.LoadNImage();
-//        initNews();
-        //RecycAdapter recycAdapter = new RecycAdapter(newsList);
-        //recyclerView.setAdapter(recycAdapter);
     }
 
     private void initAlbum(ArrayList<String[]> list, RecyclerView recyclerView){
@@ -93,7 +88,7 @@ public class MainActivity extends BaseApplication {
                 FileInputStream fis = new FileInputStream(list.get(i)[1]);
                 int size;
                 size = fis.available();
-                if(size >= 1024 * 256){
+                if(size >= 1024 * 256){           //大小在256k以上的图片压缩放到缓冲区
                     LruCacheImg.INSTANCE.mMemoryCache.put(list.get(i)[0], BitmapFactory.decodeStream(fis, null, bmpFactoryOptions));
                 }
                 else{
@@ -104,9 +99,7 @@ public class MainActivity extends BaseApplication {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//            RecycAdapter recycAdapter = new RecycAdapter(newsList);
-//            recyclerView.setAdapter(recycAdapter);
-            recycAdapter.addFootItem();
+            recycAdapter.addFootItem();           //recyclerView尾部动态添加新元素
         }
     }
 }

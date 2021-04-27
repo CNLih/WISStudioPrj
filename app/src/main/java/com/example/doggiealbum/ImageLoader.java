@@ -1,6 +1,5 @@
 package com.example.doggiealbum;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
@@ -16,7 +15,6 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.SynchronousQueue;
@@ -27,17 +25,11 @@ public class ImageLoader {
     private final int[] LoadAtOneTime = new int[2];
     private boolean isLoading = false;
     private RecycAdapter recycAdapter;
-    private BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
 
     public ImageLoader(List<News> lists, RecyclerView recyclerView, RecycAdapter recycAdapter){
         this.lists = lists;
         this.recyclerView = recyclerView;
         this.recycAdapter = recycAdapter;
-        LoadAtOneTime[0] = 6;
-    }
-
-    public ImageLoader(){
-
     }
 
     public boolean getIsLoading(){
@@ -46,13 +38,12 @@ public class ImageLoader {
 
     public void LoadNImage(int num){
         if(!isLoading){
-            if(!getNetworkState(BaseApplication.getmContext())){
+            if(!getNetworkState()){
                 Toast.makeText(BaseApplication.getmContext(),"网络不可用",Toast.LENGTH_SHORT).show();
                 return ;
             }
             setLoadOnce(num);
 
-            bmpFactoryOptions.inSampleSize = 4;          //设置图片的压缩为原图的1/4
             new UpdateRecyc().execute();
         }
     }
@@ -65,17 +56,13 @@ public class ImageLoader {
         this.LoadAtOneTime[0] = num;
     }
 
-    public int getLoadOnce(int num){
-        return this.LoadAtOneTime[0];
-    }
-
     private void getBitmap(String url){
         if(LruCacheImg.INSTANCE.mMemoryCache.get(url) == null){
             LruCacheImg.INSTANCE.mMemoryCache.put(url, getBitmapByUrl(url, true));
         }
     }
 
-    public Bitmap getBitmapByUrl(String url, Boolean isZip){
+    public static Bitmap getBitmapByUrl(String url, Boolean isZip){
         URL imgUrl;
         Bitmap bitmap = null;
         try {
@@ -84,10 +71,11 @@ public class ImageLoader {
             conn.setDoInput(true);
             conn.connect();
             InputStream is = conn.getInputStream();
-            int size = conn.getContentLength();
-            bmpFactoryOptions.inSampleSize = size / (256 * 1024);
-            if(bmpFactoryOptions.inSampleSize > 1 && isZip){                    //这里想让news获取大小
-                Log.d("TAG", "getBitmapByUrl: " + "overSize!");
+            int size = conn.getContentLength();       //网络中获取bitmap大小的方式
+            BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
+            bmpFactoryOptions.inSampleSize = size / (256 * 1024);               //让大于256k的图片通过sampleSize尽量贴近256k
+            if(bmpFactoryOptions.inSampleSize > 1 && isZip){
+//                Log.d("TAG", "getBitmapByUrl: " + "overSize!");
                 bitmap = BitmapFactory.decodeStream(is, null, bmpFactoryOptions);
             }
             else {
@@ -103,17 +91,14 @@ public class ImageLoader {
     }
 
     //直接copy的
-    public static boolean getNetworkState(Context context) {
+    public static boolean getNetworkState() {
         // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
-        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivityManager = (ConnectivityManager) BaseApplication.getmContext().getSystemService(BaseApplication.getmContext().CONNECTIVITY_SERVICE);
         // 获取NetworkInfo对象
         NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
         // 遍历每一个对象
         for (NetworkInfo networkInfo : networkInfos) {
             if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
-                // debug信息
-                Toast.makeText(context,"TypeName = " + networkInfo.getTypeName(),Toast.LENGTH_SHORT).show();
-                // 网络状态可用
                 return true;
             }
         }
@@ -121,13 +106,13 @@ public class ImageLoader {
         return false;
     }
 
-    public class UpdateRecyc extends AsyncTask<String, Integer, Void>{
-        SynchronousQueue<List<String>> queue = new SynchronousQueue<>();
+    public class UpdateRecyc extends AsyncTask<Void, Integer, Void>{
+        SynchronousQueue<List<String>> queue = new SynchronousQueue<>();   //锁，处理完url才加载图片
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            isLoading = true;
+            isLoading = true;        //锁，避免一次申请多个加载请求
 
             for(int i = 0; i < LoadAtOneTime[0]; i ++) {
                 News news = new News();
@@ -137,7 +122,7 @@ public class ImageLoader {
         }
 
         @Override
-        protected Void doInBackground(String... strings) {
+        protected Void doInBackground(Void... void0) {
             UrlProcessor urlProcessor = new UrlProcessor();
             new Thread(() -> {
                 try {
@@ -167,14 +152,13 @@ public class ImageLoader {
         protected void onProgressUpdate(Integer... values) {
             super.onProgressUpdate(values);
 
-            recycAdapter.updataItem(values[0]);
+            recycAdapter.updateItem(values[0]);        //这里更新缓冲好的图片
         }
 
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             isLoading = false;
-            Log.d("TAG", "onPostExecute: finished");
         }
     }
 }

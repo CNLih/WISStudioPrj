@@ -41,8 +41,7 @@
                 android:id="@+id/btn_new_img"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:visibility="gone"
-                android:text="Loading"
+                android:text="ADD"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"/>

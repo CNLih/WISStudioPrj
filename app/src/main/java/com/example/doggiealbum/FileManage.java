@@ -33,10 +33,9 @@ public enum FileManage {
     INSTANCE;
 
     private SQLiteDatabase db;
-    private static String DEFAULT_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
+    private static String DEFAULT_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();       //获取默认下载位置（Download）路径
 
     FileManage() {
-
         SQLiteOpenHelper dbHelper = new MyDatabaseHelper(BaseApplication.getmContext(),
                 "ALBUM.db", null, 1);
         db = dbHelper.getReadableDatabase();
@@ -81,9 +80,6 @@ public enum FileManage {
             }while (cursor.moveToNext());
         }
         cursor.close();
-        for(int i = 0; i < rtn.size(); i ++){
-            Log.d("TAG", "getAllNews: " + rtn.get(i)[0] + rtn.get(i)[1]);
-        }
         return rtn;
     }
 
@@ -93,7 +89,7 @@ public enum FileManage {
         //获取db中的最大id值+1作为新的id
         Cursor cursor = db.rawQuery("select max(id) AS maxId from Album", null);
         final int[] curId = new int[2];
-        //curId[0] = 0;   //by default
+        //curId[0] = 0;   //默认java特性
         if(cursor !=null && cursor.moveToFirst() && cursor.getCount()>0) {
             curId[0] = cursor.getInt(cursor.getColumnIndex("maxId"));
             Log.d("TAG", "putNews: has" + curId[0]);
@@ -108,6 +104,7 @@ public enum FileManage {
             return ;
         }
         Log.d("TAG", "putNews: put into db successfully");
+
         //保存图片到物理位置
         new Thread(() -> {
             Bitmap bitmap;
@@ -124,23 +121,17 @@ public enum FileManage {
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream);
                 fileOutputStream.flush();  //关闭写入流
                 fileOutputStream.close();
-                message.what = 1;
                 message.obj = DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg";
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                message.what = 2;
                 message.obj = e.getMessage();
             } catch (IOException e) {
                 e.printStackTrace();
-                message.what = 2;
                 message.obj = e.getMessage();
             }
             handler.sendMessage(message);
         }).start();
     }
-
-    //先加载本地图片
-    //public Bitmap putNews
 
     public class MyDatabaseHelper extends SQLiteOpenHelper{
         public static final String CREATE_TABLE = "create table Album("
