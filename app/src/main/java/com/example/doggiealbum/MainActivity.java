@@ -38,6 +38,8 @@ public class MainActivity extends BaseApplication {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ImageLoader.getNetworkState();
+
         //View
         Button button = (Button)findViewById(R.id.btn_new_img);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.re_view);
@@ -58,8 +60,8 @@ public class MainActivity extends BaseApplication {
         list = FileManage.INSTANCE.getAllNews();
         initAlbum(list, recyclerView);
         ImageLoader imageLoader = new ImageLoader(newsList, recyclerView, recycAdapter);
-        if(list.size() < 8){
-            imageLoader.LoadNImage(8 - list.size());
+        if(list.size() < 6){
+            imageLoader.LoadNImage(6 - list.size());
         }
 
         reboundScrollView.setOnReboundEndListener(new ReboundScrollView.OnReboundEndListener() {
@@ -71,11 +73,11 @@ public class MainActivity extends BaseApplication {
             @Override
             public void onReboundBottomComplete() {
                 if(!imageLoader.getIsLoading()){
-                    imageLoader.LoadNImage(8);
+                    imageLoader.LoadNImage(6);
                 }
             }
         });
-        button.setOnClickListener(view -> imageLoader.LoadNImage(8));
+        button.setOnClickListener(view -> imageLoader.LoadNImage(6));
     }
 
     private void initAlbum(ArrayList<String[]> list, RecyclerView recyclerView){
