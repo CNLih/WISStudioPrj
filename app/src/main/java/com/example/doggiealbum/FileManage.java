@@ -36,6 +36,7 @@ public enum FileManage {
     private static String DEFAULT_PATH = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getPath();
 
     FileManage() {
+
         SQLiteOpenHelper dbHelper = new MyDatabaseHelper(BaseApplication.getmContext(),
                 "ALBUM.db", null, 1);
         db = dbHelper.getReadableDatabase();
@@ -86,7 +87,7 @@ public enum FileManage {
         return rtn;
     }
 
-    public void putNews(String url) {
+    public void putNews(String url, Bitmap originBitmap) {
         //db存放路径
         ContentValues values = new ContentValues();
         //获取db中的最大id值+1作为新的id
@@ -109,7 +110,13 @@ public enum FileManage {
         Log.d("TAG", "putNews: put into db successfully");
         //保存图片到物理位置
         new Thread(() -> {
-            Bitmap bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url);
+            Bitmap bitmap;
+            if(originBitmap == null){
+                bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url);
+            }
+            else {
+                bitmap = originBitmap;
+            }
             File file = new File(DEFAULT_PATH + "/" +(curId[0] + 1) + ".jpg");
             Message message = new Message();
             try{

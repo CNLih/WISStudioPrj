@@ -1,7 +1,10 @@
 package com.example.doggiealbum;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
@@ -24,6 +27,7 @@ public class ImageLoader {
     private final int[] LoadAtOneTime = new int[2];
     private boolean isLoading = false;
     private RecycAdapter recycAdapter;
+    private BitmapFactory.Options bmpFactoryOptions = new BitmapFactory.Options();
 
     public ImageLoader(List<News> lists, RecyclerView recyclerView, RecycAdapter recycAdapter){
         this.lists = lists;
@@ -32,13 +36,23 @@ public class ImageLoader {
         LoadAtOneTime[0] = 6;
     }
 
+    public ImageLoader(){
+
+    }
+
     public boolean getIsLoading(){
         return isLoading;
     }
 
     public void LoadNImage(int num){
         if(!isLoading){
+            if(!getNetworkState(BaseApplication.getmContext())){
+                Toast.makeText(BaseApplication.getmContext(),"网络不可用",Toast.LENGTH_SHORT).show();
+                return ;
+            }
             setLoadOnce(num);
+
+            bmpFactoryOptions.inSampleSize = 4;          //设置图片的压缩为原图的1/4
             new UpdateRecyc().execute();
         }
     }
@@ -55,16 +69,13 @@ public class ImageLoader {
         return this.LoadAtOneTime[0];
     }
 
-    private static Bitmap getBitmap(String url){
-        Bitmap bitmap;
-        if((bitmap = LruCacheImg.INSTANCE.mMemoryCache.get(url)) != null){
-            return bitmap;
-        }else{
-            return getBitmapByUrl(url);
+    private void getBitmap(String url){
+        if(LruCacheImg.INSTANCE.mMemoryCache.get(url) == null){
+            LruCacheImg.INSTANCE.mMemoryCache.put(url, getBitmapByUrl(url, true));
         }
     }
 
-    private static Bitmap getBitmapByUrl(String url){
+    public Bitmap getBitmapByUrl(String url, Boolean isZip){
         URL imgUrl;
         Bitmap bitmap = null;
         try {
@@ -73,8 +84,15 @@ public class ImageLoader {
             conn.setDoInput(true);
             conn.connect();
             InputStream is = conn.getInputStream();
-            bitmap = BitmapFactory.decodeStream(is);
-            LruCacheImg.INSTANCE.mMemoryCache.put(url, bitmap);
+            int size = conn.getContentLength();
+            bmpFactoryOptions.inSampleSize = size / (256 * 1024);
+            if(bmpFactoryOptions.inSampleSize > 1 && isZip){                    //这里想让news获取大小
+                Log.d("TAG", "getBitmapByUrl: " + "overSize!");
+                bitmap = BitmapFactory.decodeStream(is, null, bmpFactoryOptions);
+            }
+            else {
+                bitmap = BitmapFactory.decodeStream(is);
+            }
             is.close();
         } catch (MalformedURLException e) {
             e.printStackTrace();
@@ -82,6 +100,25 @@ public class ImageLoader {
             e.printStackTrace();
         }
         return bitmap;
+    }
+
+    //直接copy的
+    public static boolean getNetworkState(Context context) {
+        // 获取手机所有连接管理对象（包括对wi-fi,net等连接的管理）
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        // 获取NetworkInfo对象
+        NetworkInfo[] networkInfos = connectivityManager.getAllNetworkInfo();
+        // 遍历每一个对象
+        for (NetworkInfo networkInfo : networkInfos) {
+            if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                // debug信息
+                Toast.makeText(context,"TypeName = " + networkInfo.getTypeName(),Toast.LENGTH_SHORT).show();
+                // 网络状态可用
+                return true;
+            }
+        }
+        // 没有可用的网络
+        return false;
     }
 
     public class UpdateRecyc extends AsyncTask<String, Integer, Void>{

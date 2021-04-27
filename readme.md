@@ -404,7 +404,15 @@ public void addFootItem(){
 
 [简书](https://www.jianshu.com/p/d23b42b6360b)
 
+##### 上拉加载更多
 
+[顶部下拉和底部上拉回弹效果](https://cloud.tencent.com/developer/article/1743503)
+
+获取底部和顶部的view，依据大小判断是否回弹
+
+通过Recyclerview 与 Scrollview组合完成上拉回弹加载更多
+
+https://blog.csdn.net/tran_sient/article/details/103606709
 
 
 
